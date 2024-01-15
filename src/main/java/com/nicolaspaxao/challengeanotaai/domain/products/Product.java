@@ -24,7 +24,7 @@ public class Product {
     public Product(ProductDTO productDTO){
         title = productDTO.title();
         description = productDTO.description();
-        ownerId = productDTO.ownerID();
+        ownerId = productDTO.ownerId();
         price = productDTO.price();
     }
 }

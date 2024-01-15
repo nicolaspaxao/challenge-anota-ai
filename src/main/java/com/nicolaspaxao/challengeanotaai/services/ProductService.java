@@ -21,7 +21,7 @@ public class ProductService {
     }
 
     public Product insert(ProductDTO productData) {
-        Category category = categoryService.getByID(productData.categoryID()).orElseThrow(CategoryNotFoundException::new);
+        Category category = categoryService.getByID(productData.categoryId()).orElseThrow(CategoryNotFoundException::new);
         Product newProduct = new Product(productData);
         newProduct.setCategory(category);
         productRepository.save(newProduct);
@@ -35,11 +35,14 @@ public class ProductService {
     public Product update(String id, ProductDTO productData){
         Product product = productRepository.findById(id).orElseThrow(ProductNotFoundException::new);
 
-        categoryService.getByID(productData.categoryID()).ifPresent(product::setCategory);
+        if(productData.categoryId() != null){
+            categoryService.getByID(productData.categoryId()).ifPresent(product::setCategory);
+        }
+
 
         if(!productData.title().isEmpty()) product.setTitle(productData.title());
         if(!productData.description().isEmpty()) product.setDescription(productData.description());
-        if(!productData.ownerID().isEmpty()) product.setOwnerId(productData.ownerID());
+        if(!productData.ownerId().isEmpty()) product.setOwnerId(productData.ownerId());
         if(!(productData.price() == null)) product.setPrice(productData.price());
 
         this.productRepository.save(product);

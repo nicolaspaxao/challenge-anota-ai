@@ -21,6 +21,6 @@ public class Category {
     public Category(CategoryDTO categoryDTO){
         title = categoryDTO.title();
         description = categoryDTO.description();
-        ownerId = categoryDTO.ownerID();
+        ownerId = categoryDTO.ownerId();
     }
 }
