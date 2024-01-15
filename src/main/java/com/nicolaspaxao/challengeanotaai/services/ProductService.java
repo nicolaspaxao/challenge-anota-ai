@@ -7,24 +7,29 @@ import com.nicolaspaxao.challengeanotaai.domain.products.ProductDTO;
 import com.nicolaspaxao.challengeanotaai.domain.products.exceptions.ProductNotFoundException;
 import com.nicolaspaxao.challengeanotaai.repositories.CategoryRepository;
 import com.nicolaspaxao.challengeanotaai.repositories.ProductRepository;
+import com.nicolaspaxao.challengeanotaai.services.aws.AwsSnsService;
+import com.nicolaspaxao.challengeanotaai.services.aws.MessageDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 @Service
 public class ProductService {
-    private CategoryService categoryService;
-    private ProductRepository productRepository;
+    private final CategoryService categoryService;
+    private final ProductRepository productRepository;
+    private final AwsSnsService snsService;
 
-    public ProductService(ProductRepository productRepository, CategoryService categoryService){
+    public ProductService(ProductRepository productRepository, CategoryService categoryService, AwsSnsService snsService){
         this.productRepository = productRepository;
         this.categoryService = categoryService;
+        this.snsService = snsService;
     }
 
     public Product insert(ProductDTO productData) {
         Category category = categoryService.getByID(productData.categoryId()).orElseThrow(CategoryNotFoundException::new);
         Product newProduct = new Product(productData);
         newProduct.setCategory(category);
-        productRepository.save(newProduct);
+        this.productRepository.save(newProduct);
+        snsService.publish(new MessageDTO(newProduct.getOwnerId()));
         return newProduct;
     }
 
@@ -46,6 +51,8 @@ public class ProductService {
         if(!(productData.price() == null)) product.setPrice(productData.price());
 
         this.productRepository.save(product);
+
+        snsService.publish(new MessageDTO(product.getOwnerId()));
 
         return product;
     }
